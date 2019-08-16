@@ -1,32 +1,3 @@
-from collections import defaultdict
-
-class Graph():
-    def __init__(self):
-        """
-        self.edges is a dict of all possible next nodes
-        self.weights has all the weights between two nodes,
-        with the two nodes as a tuple as the key
-        """
-        self.edges = defaultdict(list)
-        self.weights = {}
-    
-    def add_edge(self, from_node, to_node, weight):
-        # Note: assumes edges are bi-directional
-        self.edges[from_node].append(to_node)
-        self.edges[to_node].append(from_node)
-        self.weights[(from_node, to_node)] = weight
-        self.weights[(to_node, from_node)] = weight
-
-
-graph = Graph()
-
-'''
-edges = [
-('Bangalore', 'Hubli', 464),
-('Bangalore', 'Dharwad', 518),
-('Hubli', 'Dharwad', 141)]
-'''
-
 edges = [('Mysore', 'Mandya', 66),
 ('Mysore', 'Chennapatna', 28),
 ('Mysore', 'Nanjangud', 60),
@@ -56,51 +27,39 @@ edges = [('Mysore', 'Mandya', 66),
 ('Nagarhole', 'Bylakuppe', 81),
 ('Somnathpur', 'Bylakuppe', 90)]
 
-
-for edge in edges:
-    graph.add_edge(*edge)
-
-
-def dijsktra(graph, initial, end):
-    # shortest paths is a dict of nodes
-    # whose value is a tuple of (previous node, weight)
-    shortest_paths = {initial: (None, 0)}
-    current_node = initial
-    visited = set()
+cities = []
+for i,j,d in edges:
+    cities.append(i)
+    cities.append(j)
     
-    while current_node != end:
-        visited.add(current_node)
-        destinations = graph.edges[current_node]
-        weight_to_current_node = shortest_paths[current_node][1]
+cities = list(set(cities))
+print(cities)
+mappers = dict()
 
-        for next_node in destinations:
-            weight = graph.weights[(current_node, next_node)] + weight_to_current_node
-            if next_node not in shortest_paths:
-                shortest_paths[next_node] = (current_node, weight)
-            else:
-                current_shortest_weight = shortest_paths[next_node][1]
-                if current_shortest_weight > weight:
-                    shortest_paths[next_node] = (current_node, weight)
+for i,j,d in edges:
+    mappers[i + 'to' + j] = d
+    mappers[j + 'to' + i] = d
+print(mappers)
+combinations = []
+l_path =None
+l_dis = None
+
+for ind, i in enumerate(cities):
+    dis = 0
+    s = i + '-->'
+    for j in cities:
+        if i == j:
+            continue
+        dis +=  mappers[i+ 'to'+ j]
+        s = s + j + '-->'
+    combinations.append((s, dis))
+    if ind == 0:
+        l_path = s
+        l_dis = dis
+    if dis < l_dis:
+        l_dis = dis
+        l_path = s
         
-        next_destinations = {node: shortest_paths[node] for node in shortest_paths if node not in visited}
-        print(next_destinations)
-        if not next_destinations:
-            return "Route Not Possible"
-        # next node is the destination with the lowest weight
-        
-        
-        current_node = min(next_destinations, key=lambda k: next_destinations[k][1])
-    
-    # Work back through destinations in shortest path
+print(combinations)
 
-    path = []
-    while current_node is not None:
-        path.append(current_node)
-        next_node = shortest_paths[current_node][0]
-        current_node = next_node
-    # Reverse path
-    path = path[::-1]
-    return path
-
-
-dijsktra(graph, 'Mysore','Nanjangud')
+print(l_path, l_dis)
