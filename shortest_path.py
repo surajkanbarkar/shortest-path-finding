@@ -104,6 +104,3 @@ def dijsktra(graph, initial, end):
 
 
 dijsktra(graph, 'Mysore','Nanjangud')
-
-
-output:['Mysore', 'Somnathpur', 'Nagarhole', 'Nanjangud']
